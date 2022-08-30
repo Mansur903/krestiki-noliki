@@ -5,8 +5,8 @@ import { Alert, Button, Modal } from 'react-bootstrap';
 import './styles.css';
 
 function GameField(props) {
-  const {size, makeMove, cancelMove, gameProgress, firstPlayerName, restart, winners} = props;
-  const { currentPlayer, finished, first, second } = gameProgress;
+  const {size, makeMove, cancelMove, gameProgress, firstPlayerName, restart, winnersCountByPlayer} = props;
+  const { currentPlayer, finished, firstPlayerMoves, secondPlayerMoves } = gameProgress;
   const [modalShow, setModalShow] = React.useState(false);
   const [field, setField] = React.useState(
     [
@@ -18,7 +18,7 @@ function GameField(props) {
   const [movesList, setList] = React.useState([]);
     
   const handleMove = (row, column) => (e) => {
-    if (finished !== true && !first.includes(Number(e.target.id)) && !second.includes(Number(e.target.id))) {
+    if (finished !== true && !firstPlayerMoves.includes(Number(e.target.id)) && !secondPlayerMoves.includes(Number(e.target.id))) {
       makeMove(e);
       const newField = [...field];
       currentPlayer === firstPlayerName ? newField[row][column] = 'X' : newField[row][column] = 'O';
@@ -52,7 +52,7 @@ function GameField(props) {
     setList([]);
   }
 
-  const isDraw = () => !finished && ((first.length + second.length) === size*size);
+  const isDraw = () => !finished && ((firstPlayerMoves.length + secondPlayerMoves.length) === size*size);
 
   const handleCancelMove = () => {
     cancelMove();
@@ -87,7 +87,7 @@ function GameField(props) {
               {ratingList().map((item) => <li key={_.uniqueId()}>{item}:<hr /></li>)}
             </ul>
             <ul className="p-0 w-50 list-unstyled">
-              {ratingList().map((item) => <li key={_.uniqueId()}>{winners[item]}<hr /></li>)}
+              {ratingList().map((item) => <li key={_.uniqueId()}>{winnersCountByPlayer[item]}<hr /></li>)}
             </ul>
           </div>
         </Modal.Body>
@@ -103,7 +103,7 @@ function GameField(props) {
   };
 
   const ratingList = () => {
-    return Object.entries(winners)
+    return Object.entries(winnersCountByPlayer)
     .sort(([,a],[,b]) => b - a)
     .map(([key,]) => key);
   }

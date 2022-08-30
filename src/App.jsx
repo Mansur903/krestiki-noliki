@@ -10,39 +10,35 @@ import ChooseField from './components/ChooseField.jsx';
 
 function App() {
   const [state, setState] = useImmer({
-    firstPlayer: {
-      name: undefined,
-    },
-    secondPlayer: {
-      name: undefined,
-    },
+    firstPlayerName: undefined,
+    secondPlayerName: undefined,
     step: 'prepareFirstPlayer',
     fieldSize: 3,
     gameProgress: {
-      first: [],
-      second: [],
+      firstPlayerMoves: [],
+      secondPlayerMoves: [],
       currentPlayer: undefined,
       finished: false,
     },
-    winners: {},
+    winnersCountByPlayer: {},
   });
 
-  const { first } = state.gameProgress;
-  const { second } = state.gameProgress;
+  const { firstPlayerMoves } = state.gameProgress;
+  const { secondPlayerMoves } = state.gameProgress;
 
   const onReadyFirstPlayer = (name) => {
     setState(state => {
-      state.firstPlayer.name = name;
+      state.firstPlayerName = name;
       state.gameProgress.currentPlayer = name;
-      if (!state.winners[name]) state.winners[name] = 0;
+      if (!state.winnersCountByPlayer[name]) state.winnersCountByPlayer[name] = 0;
       state.step = 'prepareSecondPlayer';
     })
   };
 
   const onReadySecondPlayer = (name) => {
     setState(state => {
-      state.secondPlayer.name = name;
-      if (!state.winners[name]) state.winners[name] = 0;
+      state.secondPlayerName = name;
+      if (!state.winnersCountByPlayer[name]) state.winnersCountByPlayer[name] = 0;
       state.step = 'chooseFieldSize';
     })
   };
@@ -71,21 +67,20 @@ function App() {
       [0, 4, 8],
       [2, 4, 6],
     ];
-    const firstResults = [...first];
-    const secondResults = [...second];
+    console.log('state.current: ', state.gameProgress.currentPlayer)
     combinations.forEach((item) => {
-      if (contains(firstResults, item)) {
+      if (contains(firstPlayerMoves, item)) {
         setState(state => {
           state.gameProgress.finished = true;
-          state.gameProgress.currentPlayer = state.firstPlayer.name;
-          state.winners[state.firstPlayer.name] += 1;
+          state.gameProgress.currentPlayer = state.firstPlayerName;
+          state.winnersCountByPlayer[state.firstPlayerName] += 1;
         });
       };
-      if (contains(secondResults, item)) {
+      if (contains(secondPlayerMoves, item)) {
         setState(state => {
           state.gameProgress.finished = true;
-          state.gameProgress.currentPlayer = state.secondPlayer.name;
-          state.winners[state.secondPlayer.name] += 1;
+          state.gameProgress.currentPlayer = state.secondPlayerName;
+          state.winnersCountByPlayer[state.secondPlayerName] += 1;
         });
       };
     });
@@ -93,38 +88,39 @@ function App() {
 
   React.useEffect(() => {
     checkWin();
-  }, [state.gameProgress.first, state.gameProgress.second]);
+  }, [state.gameProgress.firstPlayerMoves, state.gameProgress.secondPlayerMoves]);
 
   React.useEffect(() => {
-  }, [state.winners])
+    console.log('state.current: ', state.gameProgress.currentPlayer)
+  }, [state])
 
   const makeMove = (e) => {
     const currentPlayer = state.gameProgress.currentPlayer;
-    if (first.includes(Number(e.target.id)) || second.includes(Number(e.target.id)) || state.gameProgress.finished === true) return null;
-    if (currentPlayer === state.firstPlayer.name) {
+    if (firstPlayerMoves.includes(Number(e.target.id)) || secondPlayerMoves.includes(Number(e.target.id)) || state.gameProgress.finished === true) return null;
+    if (currentPlayer === state.firstPlayerName) {
       setState(state => {
-        state.gameProgress.first.push(Number(e.target.id));
-        state.gameProgress.currentPlayer = state.secondPlayer.name;
+        state.gameProgress.firstPlayerMoves.push(Number(e.target.id));
+        state.gameProgress.currentPlayer = state.secondPlayerName;
       });
     } else {
       setState(state => {
-        state.gameProgress.second.push(Number(e.target.id));
-        state.gameProgress.currentPlayer = state.firstPlayer.name;
+        state.gameProgress.secondPlayerMoves.push(Number(e.target.id));
+        state.gameProgress.currentPlayer = state.firstPlayerName;
       });
     }
   }
 
   const cancelMove = () => {
     const currentPlayer = state.gameProgress.currentPlayer;
-    if (currentPlayer === state.firstPlayer.name) {
+    if (currentPlayer === state.firstPlayerName) {
       setState(state => {
-        state.gameProgress.currentPlayer = state.secondPlayer.name;
+        state.gameProgress.currentPlayer = state.secondPlayerName;
         state.gameProgress.second.pop();
       })
     } else {
       setState(state => {
-        state.gameProgress.currentPlayer = state.firstPlayer.name;
-        state.gameProgress.first.pop();
+        state.gameProgress.currentPlayer = state.firstPlayerName;
+        state.gameProgress.firstPlayerMoves.pop();
       })
     }
   }
@@ -134,9 +130,9 @@ function App() {
       setState(state => {state.step = 'prepareFirstPlayer'});
     }
     setState(state => {
-      state.gameProgress.first = [];
-      state.gameProgress.second = [];
-      state.gameProgress.currentPlayer = state.firstPlayer.name;
+      state.gameProgress.firstPlayerMoves = [];
+      state.gameProgress.secondPlayerMoves = [];
+      state.gameProgress.currentPlayer = state.firstPlayerName;
       state.gameProgress.finished = false;
     })
   }
@@ -149,8 +145,8 @@ function App() {
     case 'chooseFieldSize':
       return (<ChooseField setSize={setSize} />)
     case 'game':
-      return (<GameField size={state.fieldSize} makeMove={makeMove} cancelMove={cancelMove} winners={state.winners}
-        restart={restart} gameProgress={state.gameProgress} firstPlayerName={state.firstPlayer.name} />)
+      return (<GameField size={state.fieldSize} makeMove={makeMove} cancelMove={cancelMove} winnersCountByPlayer={state.winnersCountByPlayer}
+        restart={restart} gameProgress={state.gameProgress} firstPlayerName={state.firstPlayerName} />)
     default:
   };
 }

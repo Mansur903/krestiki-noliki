@@ -27,6 +27,7 @@ function PreparePlayer(props) {
     }
   };
 
+
   return(
     <div className='container-sm col-5 d-flex flex-column justify-content-center align-items-center vh-100'>
       <h1 className="mb-5">Введите имя и подтвердите готовность игрока {whichPlayer()}</h1>
