@@ -3,7 +3,6 @@ import React from 'react';
 import { useImmer } from "use-immer";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import './App.css';
 import PreparePlayer from "./components/PreparePlayer.jsx";
 import GameField from './components/GameField/GameField.jsx';
 import ChooseField from './components/ChooseField.jsx';
